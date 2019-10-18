@@ -1,18 +1,16 @@
 defmodule Proj3 do
-  @moduledoc """
-  Documentation for Proj3.
-  """
 
-  @doc """
-  Hello world.
+    def main(args \\ []) do
+        startProject(args)
+    end
 
-  ## Examples
+    def startProject(args) do
+        IO.puts "Project started"
+        [numNodes, numRequests] = args
+        IO.inspect numNodes
+        IO.inspect numRequests
 
-      iex> Proj3.hello()
-      :world
+        # TODO: Put logic to define supervisors and genservers 
+    end
 
-  """
-  def hello do
-    :world
-  end
 end
