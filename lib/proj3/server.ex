@@ -1,11 +1,13 @@
 defmodule Proj3.Server do
     use GenServer
 
-    def init(init_arg) do
-        IO.inspect {:ok, init_arg}
+    def init(init_state) do
+        IO.inspect {:ok, init_state}
+        # Initialize this genserver with name, empty routing table and all
+        # name = 
     end
 
-    def terminate(reason, current_state) do
+    def terminate(reason, _current_state) do
         IO.inspect reason
         IO.puts "Exiting GenServer ###########------------#######"
     end
