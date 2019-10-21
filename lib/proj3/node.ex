@@ -9,8 +9,8 @@ defmodule Proj3.Node do
             Map.put(acc, currentIndex, %{})
         end)
         currentState = nodeInitializationData
-        # Map.put_new(currentState, routingTable)
-        IO.inspect routingTable
+        currentState = Map.merge(currentState, %{routingTable: routingTable})
+        # IO.inspect routingTable
         IO.inspect {:ok, currentState}
     end
 
