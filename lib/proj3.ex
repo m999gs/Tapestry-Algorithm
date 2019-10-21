@@ -9,7 +9,8 @@ defmodule Proj3 do
         [numNodes, numRequests] = args
         IO.inspect numNodes
         IO.inspect numRequests
-        # Application.start(:normal, {numNodes, numRequests})
+        # Proj3.Supervisor.start_link(numNodes)
+        Application.start(:normal, {numNodes, numRequests})
         # TODO: Put logic to define supervisors and genservers 
     end
 

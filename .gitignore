@@ -22,3 +22,4 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 proj3-*.tar
 
+lib/proj3/supervisor.ex
