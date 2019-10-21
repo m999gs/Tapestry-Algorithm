@@ -9,6 +9,8 @@ defmodule Proj3.Application do
     children = Enum.reduce(1..numNodes, [], fn x, acc -> 
       currentNode = "node#{x}"
       hashName = Helper.hashFunction(currentNode)
+      # Trim hashname from 40 bits to 8 bits (remove this once final)
+      hashName = String.slice(hashName, 0..7)
       [Supervisor.child_spec({Proj3.Node, [%{hashID: hashName, name: currentNode}, x]}, id: {Proj3.Node, x}, restart: :temporary) | acc]
       end)
     
