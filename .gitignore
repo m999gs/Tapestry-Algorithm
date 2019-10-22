@@ -23,4 +23,3 @@ erl_crash.dump
 proj3-*.tar
 
 lib/proj3/supervisor.ex
-try.ex

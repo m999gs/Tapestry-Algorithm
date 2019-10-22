@@ -8,9 +8,4 @@ defmodule Helper do
         slots = "0123456789ABCDEF"
         String.at(slots, index)
     end
-
-    # def listOfHashNames(name) do
-       
-    
-    # end
 end
