@@ -13,7 +13,7 @@ defmodule Proj3.Node do
         end)
         currentState = nodeInitializationData
         currentState = Map.merge(currentState, %{"routingTable" => routingTable})
-        IO.inspect(currentState["routingTable"][0]["0"])
+        IO.inspect currentState
         {:ok, currentState}
     end
 
