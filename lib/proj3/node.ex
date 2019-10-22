@@ -12,8 +12,8 @@ defmodule Proj3.Node do
             Map.put(acc1, currentLevel, slots)
         end)
         currentState = nodeInitializationData
-        currentState = Map.merge(currentState, %{routingTable: routingTable})
-        IO.inspect currentState
+        currentState = Map.merge(currentState, %{"routingTable" => routingTable})
+        IO.inspect(currentState["routingTable"][0]["0"])
         {:ok, currentState}
     end
 
