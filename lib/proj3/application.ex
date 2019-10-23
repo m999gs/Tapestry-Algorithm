@@ -11,6 +11,7 @@ defmodule Proj3.Application do
     children = Enum.reduce(1..numNodes, [], fn x, acc -> 
       currentNode = "node#{x}"
       routingTable = routingtable(hashName[x],hashName)
+      IO.inspect routingTable
       [Supervisor.child_spec({Proj3.Node, [%{ hashID: hashName[x], name: currentNode,hashnames: hashName,routingTable: routingTable}, x]}, id: {Proj3.Node, x}, restart: :temporary) | acc]
       end)
     opts = [strategy: :one_for_one, name: Proj3.Supervisor]
