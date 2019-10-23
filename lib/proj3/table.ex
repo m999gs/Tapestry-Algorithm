@@ -1,17 +1,17 @@
 defmodule Proj3.Table do
 
     def function(routingTable,hashID,hashnames) do
-        t = Enum.reduce(hashnames,routingTable, fn {_,x},acc -> 
-             
-            a = to_string(hashID)
-            b = to_string x
-            level= longest_prefix(a,b,0,0)
 
-            temp= String.at(x,level)
-            
-            {_, rlevel} = Map.fetch(routingTable, level)
-            x = Map.put(rlevel, temp, x)
-            Map.put(acc,level,x)
+        t = Enum.reduce(hashnames,routingTable, fn {_,x},acc ->
+
+            level= longest_prefix(hashID,x,0,0)
+           q= Enum.reduce(0..level,acc,fn y, acc2->
+                temp= String.at(x,y)
+                {_, rlevel} = Map.fetch(routingTable, y)
+                x = Map.put(rlevel, temp, x)
+                acc2 = Map.put(acc2,y,x)
+            end)
+            acc = q
         end)
         t
     end
