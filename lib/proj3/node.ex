@@ -2,18 +2,23 @@ defmodule Proj3.Node do
     use GenServer
 
     def init(init_state) do
+        pid = self();
+        # GenServer.cast(pid, :start)
         [nodeInitializationData | _tail] = init_state
         # Initialize this genserver with name, empty routing table and all
-        routingTable = Enum.reduce(0..7, %{}, fn currentLevel, acc1 -> 
-            slots = Enum.reduce(0..15, %{}, fn x, acc2 -> 
-            currentSlot = Helper.currentSlot(x)
-            Map.put(acc2, currentSlot, %{})
+        routingTable = Enum.reduce(0..3, %{}, fn currentLevel, acc1 -> 
+            slots = Enum.reduce(0..2, %{}, fn x, acc2 -> 
+                currentSlot = Helper.currentSlot(x)
+                Map.put(acc2, currentSlot, " ")
             end)
             Map.put(acc1, currentLevel, slots)
         end)
         currentState = nodeInitializationData
         currentState = Map.merge(currentState, %{routingTable: routingTable})
-        IO.inspect currentState
+        currentState = Map.put_new(currentState, :pid, pid)
+        
+        #This method adds hashname to global list of hashnames that is stored under Tapestry's state
+        GenServer.cast(Proj3.Tapestry, {:add_node_name_to_global_list, currentState.hashID, pid})
         {:ok, currentState}
     end
 
