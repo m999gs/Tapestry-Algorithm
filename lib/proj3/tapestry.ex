@@ -12,14 +12,14 @@ defmodule Proj3.Tapestry do
 
     def handle_cast({:add_node_name_to_global_list, name, pid}, state) do
         {_, hashNamesofAllNodes} = Map.fetch(state, :hashNamesOfAllNodes)
-        hashNamesofAllNodes = hashNamesofAllNodes ++ [name]
+        hashNamesofAllNodes = Map.put(hashNamesofAllNodes, map_size(hashNamesofAllNodes) + 1, name)
 
         {_, mapPID} = Map.fetch(state, :hashedMapPID)
         mapPID = Map.put(mapPID, name, pid)
         
         state = Map.put(state, :hashNamesOfAllNodes, hashNamesofAllNodes)
         state = Map.put(state, :hashedMapPID, mapPID)
-        IO.inspect {:noreply, state}
+        {:noreply, state}
     end
 
     def handle_call({:get}, _from, current_state) do
@@ -32,5 +32,11 @@ defmodule Proj3.Tapestry do
 
     def get() do
         GenServer.call(@me, {:get})
+    end
+
+    def buildNetwork(hash_pid_map)do
+        # Enum.reduce(pid_list, fn(x)->Node.ComputeRouteTable(x,hash_pid_map))
+        IO.puts "in tapestry's buildnetwork"
+        Proj3.Node.fillRoutingTable(hash_pid_map)
     end
 end
