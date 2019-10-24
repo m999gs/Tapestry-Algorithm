@@ -22,7 +22,7 @@ defmodule Proj3.Application do
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
-    IO.inspect Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
+    Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
 
     {:ok, application_pid}
   end

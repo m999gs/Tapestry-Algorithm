@@ -54,19 +54,19 @@ defmodule Proj3.Node do
         {:ok, allHashNames} = Map.fetch(tapestry_state, :hashNamesOfAllNodes)
 
         #Update every node's routing table
-        Enum.map(pid_map, fn {hashName, pid} -> updateRoutingTable(pid, hashName, allHashNames) end)
+        # Enum.map(pid_map, fn {hashName, pid} -> updateRoutingTable(pid, hashName, allHashNames) end)
         
-        # Enum.map(pid_map, fn {hashName, pid} -> 
-        #  Task.async(fn {hashName, pid, allHashNames} -> updateRoutingTable(pid, hashName, allHashNames) end ) 
-        # end)
-        # |> Enum.map(fn(task) -> Task.await(task) end)
+        Enum.map(pid_map, fn {hashName, pid} -> 
+            Task.async(fn -> updateRoutingTable(pid, hashName, allHashNames) end) 
+        end)
+        |> Enum.map(fn (task) -> Task.await(task, :infinity) end)
 
         #Run a function to start sending requests here
     end
 
     #Gets called by the function above
     def updateRoutingTable(pid, currentNodeId, allHashNames) do
-        GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames})
+        GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, 100000)
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
@@ -92,6 +92,6 @@ defmodule Proj3.Node do
             true ->
                 count
         end
-        IO.puts "longest prefix: #{count}"
+        count
     end
 end
