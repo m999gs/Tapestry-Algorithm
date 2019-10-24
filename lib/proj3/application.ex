@@ -22,7 +22,12 @@ defmodule Proj3.Application do
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
-    
+
+    pid_map = Map.get(Proj3.Tapestry.get(),:hashedMapPID)
+    pid=Map.get(pid_map, "B0BF")
+    node_state = Proj3.Node.get_current_state_of_node(pid)
+    newRoutingTable = Map.get(node_state,:routingTable)
+    IO.inspect Proj3.Route.route("B0BF","18BA",newRoutingTable,0)
 
     #ADD New Node to Network (Network Join)
     newNodehashName = Helper.hashFunction("node#{numNodes}")

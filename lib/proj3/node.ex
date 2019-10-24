@@ -28,6 +28,9 @@ defmodule Proj3.Node do
 
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
+        # if String.equivalent?(currentNodeId,"C03E") do
+        #     IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
+        # end
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
     end
@@ -69,6 +72,41 @@ defmodule Proj3.Node do
 
     def get_current_state_of_node(pid) do
         GenServer.call(pid, {:get_state})
+    end
+
+    def newNodeRoutingTable(routingTable, hashID, hashNames) do
+        max = 0
+        string = ""
+        {maxValue,nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
+            level = longest_prefix(hashID,x,0,0)
+            acc=
+            cond do
+                max < level ->
+                    max = level
+                    {max,x}
+                true->
+                    acc
+            end
+            acc
+        end)
+
+        # t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
+        #     level= longest_prefix(hashID,x,0,0)
+        #     q= 
+        #     cond do
+        #         level > maxValue ->
+        #             Enum.reduce(maxValue..level, acc, fn y, acc2->
+        #             temp= String.at(x,y)
+        #             {_, rlevel} = Map.fetch(acc, y)
+        #             x = Map.put(rlevel, temp, x)
+        #             _acc2 = Map.put(acc2,y,x)
+        #             end)
+        #             _acc = q
+        #         true ->
+        #             q
+        #  end)
+        #  t
+        nearestHashId
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
