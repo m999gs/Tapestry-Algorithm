@@ -22,9 +22,9 @@ defmodule Proj3.Application do
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
-
-    newRoutingTable = Proj3.Route.getRoutingTable("B0BF")
-    IO.inspect Proj3.Route.route("B0BF","18BA",newRoutingTable,0)
+    # IO.inspect Map.get(Proj3.Tapestry.get(),:hashNamesOfAllNodes)
+    # newRoutingTable = Proj3.Route.getRoutingTable("B0BF")
+    # IO.inspect Proj3.Route.route("B0BF","18BA",newRoutingTable,0)
 
     #ADD New Node to Network (Network Join)
     newNodehashName = Helper.hashFunction("node#{numNodes}")
@@ -33,7 +33,8 @@ defmodule Proj3.Application do
     newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
     Supervisor.start_child(application_pid, newChildSpec)
     Proj3.Tapestry.updateChildCount()
-    
+    IO.inspect newNodehashName
+    IO.inspect Proj3.Node.newNodeRoutingTable(Proj3.Route.getRoutingTable(newNodehashName),newNodehashName,Map.get(Proj3.Tapestry.get(),:hashNamesOfAllNodes))
 
     sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
     

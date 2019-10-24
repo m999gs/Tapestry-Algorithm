@@ -29,7 +29,7 @@ defmodule Proj3.Node do
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
         # if String.equivalent?(currentNodeId,"C03E") do
-        #     IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
+        #     IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), "2DBA", allHashNames)
         # end
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
@@ -89,24 +89,32 @@ defmodule Proj3.Node do
             end
             acc
         end)
+        IO.inspect nearestHashId
+        oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
+        routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
+                Map.put(acc,x,Map.get(oldRoutingtable,x))
+        end)
 
-        # t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
-        #     level= longest_prefix(hashID,x,0,0)
-        #     q= 
-        #     cond do
-        #         level > maxValue ->
-        #             Enum.reduce(maxValue..level, acc, fn y, acc2->
-        #             temp= String.at(x,y)
-        #             {_, rlevel} = Map.fetch(acc, y)
-        #             x = Map.put(rlevel, temp, x)
-        #             _acc2 = Map.put(acc2,y,x)
-        #             end)
-        #             _acc = q
-        #         true ->
-        #             q
-        #  end)
-        #  t
-        nearestHashId
+        t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
+            level= longest_prefix(hashID,x,0,0)
+            q= 
+            cond do
+                level > maxValue ->
+                    nt = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
+                    temp= String.at(x,y)
+                    {_, rlevel} = Map.fetch(acc, y)
+                    x = Map.put(rlevel, temp, x)
+                    acc2 = Map.put(acc2,y,x)
+                    end)
+                    acc = nt
+                    acc
+                true ->
+                    acc
+            end
+            acc = q
+            acc
+         end)
+        t
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
