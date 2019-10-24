@@ -20,7 +20,7 @@ defmodule Proj3.Node do
         #This method adds hashname to global list of hashnames that is stored under Tapestry's state
         GenServer.cast(Proj3.Tapestry, {:add_node_name_to_global_list, currentState.hashID, pid})
         # getCurrentState()
-        IO.inspect {:ok, currentState}
+        {:ok, currentState}
     end
 
     # def handle_call({:get_state}, _from, current_state) do
@@ -28,7 +28,6 @@ defmodule Proj3.Node do
     # end
 
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
-
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
@@ -36,7 +35,7 @@ defmodule Proj3.Node do
 
     def terminate(reason, _current_state) do
         IO.inspect reason
-        IO.puts "Exiting GenServer ###########------------#######"
+        IO.puts "***** Exiting Node GenServer *****"
     end
 
     #Client Side Methods
@@ -49,11 +48,20 @@ defmodule Proj3.Node do
         GenServer.stop(@server, {:terminate, reason})
     end
 
-    def fillRoutingTable(hash_pid_map) do
+    def fillRoutingTable(tapestry_state) do
         IO.puts "In node's routing method"
-        {:ok, pid_map} = Map.fetch(hash_pid_map, :hashedMapPID)
-        {:ok, allHashNames} = Map.fetch(hash_pid_map, :hashNamesOfAllNodes)
+        {:ok, pid_map} = Map.fetch(tapestry_state, :hashedMapPID)
+        {:ok, allHashNames} = Map.fetch(tapestry_state, :hashNamesOfAllNodes)
+
+        #Update every node's routing table
         Enum.map(pid_map, fn {hashName, pid} -> updateRoutingTable(pid, hashName, allHashNames) end)
+        
+        # Enum.map(pid_map, fn {hashName, pid} -> 
+        #  Task.async(fn {hashName, pid, allHashNames} -> updateRoutingTable(pid, hashName, allHashNames) end ) 
+        # end)
+        # |> Enum.map(fn(task) -> Task.await(task) end)
+
+        #Run a function to start sending requests here
     end
 
     #Gets called by the function above
@@ -62,13 +70,13 @@ defmodule Proj3.Node do
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
-           t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
-           level= longest_prefix(hashID,x,0,0)
-           q= Enum.reduce(0..level, acc, fn y, acc2->
-                temp= String.at(x,y)
+           t = Enum.reduce(hashNames, routingTable, fn {_,x}, acc ->
+           level = longest_prefix(hashID, x, 0, 0)
+           q = Enum.reduce(0..level, acc, fn y, acc2->
+                temp = String.at(x, y)
                 {_, rlevel} = Map.fetch(acc, y)
                 x = Map.put(rlevel, temp, x)
-                _acc2 = Map.put(acc2,y,x)
+                _acc2 = Map.put(acc2, y, x)
             end)
             _acc = q
         end)
@@ -84,6 +92,6 @@ defmodule Proj3.Node do
             true ->
                 count
         end
-        count
+        IO.puts "longest prefix: #{count}"
     end
 end

@@ -28,15 +28,29 @@ defmodule Proj3.Tapestry do
 
     def terminate(_reason, state) do
         IO.inspect state
+        IO.puts "***** Exiting Tapestry GenServer *****"
     end
 
     def get() do
         GenServer.call(@me, {:get})
     end
-
-    def buildNetwork(hash_pid_map)do
-        # Enum.reduce(pid_list, fn(x)->Node.ComputeRouteTable(x,hash_pid_map))
+ 
+    def makeRoutingTable(tapestry_server_state) do
         IO.puts "in tapestry's buildnetwork"
-        Proj3.Node.fillRoutingTable(hash_pid_map)
+        Proj3.Node.fillRoutingTable(tapestry_server_state)
+    end
+
+    def selectSourceAndDestinationNodes(tapestry_server_state) do
+        numRequests = Map.get(tapestry_server_state, :numRequests)
+        sourceDestination = Map.new
+        hashNamesMap = Map.get(tapestry_server_state, :hashNamesOfAllNodes)
+        sourceDestination = Enum.map(hashNamesMap, fn {_key, hashName} ->
+            destinationMap = Enum.reduce(1..numRequests, %{}, fn x, acc2 -> 
+                    {_, dest} = Enum.random(hashNamesMap)
+                    Map.put(acc2, x, dest)
+                end)
+            Map.put(sourceDestination, hashName, destinationMap) 
+        end)
+        sourceDestination
     end
 end
