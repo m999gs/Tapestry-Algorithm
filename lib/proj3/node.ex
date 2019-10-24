@@ -19,13 +19,12 @@ defmodule Proj3.Node do
         
         #This method adds hashname to global list of hashnames that is stored under Tapestry's state
         GenServer.cast(Proj3.Tapestry, {:add_node_name_to_global_list, currentState.hashID, pid})
-        # getCurrentState()
         {:ok, currentState}
     end
 
-    # def handle_call({:get_state}, _from, current_state) do
-    #     {:reply, current_state, current_state}
-    # end
+    def handle_call({:get_state}, _from, current_state) do
+        {:reply, current_state, current_state}
+    end
 
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
@@ -51,7 +50,7 @@ defmodule Proj3.Node do
     def fillRoutingTable(tapestry_state) do
         {:ok, pid_map} = Map.fetch(tapestry_state, :hashedMapPID)
         {:ok, allHashNames} = Map.fetch(tapestry_state, :hashNamesOfAllNodes)
-
+        
         #Update every node's routing table
         # Enum.map(pid_map, fn {hashName, pid} -> updateRoutingTable(pid, hashName, allHashNames) end)
         
@@ -66,6 +65,10 @@ defmodule Proj3.Node do
     #Gets called by the function above
     def updateRoutingTable(pid, currentNodeId, allHashNames) do
         GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, 100000)
+    end
+
+    def get_current_state_of_node(pid) do
+        GenServer.call(pid, {:get_state})
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do

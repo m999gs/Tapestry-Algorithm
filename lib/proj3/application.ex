@@ -32,7 +32,7 @@ defmodule Proj3.Application do
     Supervisor.start_child(application_pid, newChildSpec)
     Proj3.Tapestry.updateChildCount()
     
-    
+
     sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
     
     
