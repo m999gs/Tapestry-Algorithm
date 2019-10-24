@@ -28,9 +28,6 @@ defmodule Proj3.Node do
 
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
-        # if String.equivalent?(currentNodeId,"C03E") do
-        #     IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), "2DBA", allHashNames)
-        # end
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
     end
@@ -97,21 +94,19 @@ defmodule Proj3.Node do
 
         t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
             level= longest_prefix(hashID,x,0,0)
-            q= 
+            acc = 
             cond do
                 level > maxValue ->
-                    nt = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
+                    acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
                     temp= String.at(x,y)
                     {_, rlevel} = Map.fetch(acc, y)
                     x = Map.put(rlevel, temp, x)
-                    acc2 = Map.put(acc2,y,x)
+                    Map.put(acc2,y,x)
                     end)
-                    acc = nt
                     acc
                 true ->
                     acc
             end
-            acc = q
             acc
          end)
         t
@@ -120,13 +115,12 @@ defmodule Proj3.Node do
     def routingTableFunction(routingTable, hashID, hashNames) do
            t = Enum.reduce(hashNames, routingTable, fn {_,x}, acc ->
            level = longest_prefix(hashID, x, 0, 0)
-           q = Enum.reduce(0..level, acc, fn y, acc2->
+           Enum.reduce(0..level, acc, fn y, acc2->
                 temp = String.at(x, y)
                 {_, rlevel} = Map.fetch(acc, y)
                 x = Map.put(rlevel, temp, x)
-                _acc2 = Map.put(acc2, y, x)
+                Map.put(acc2, y, x)
             end)
-            _acc = q
         end)
         t
     end
