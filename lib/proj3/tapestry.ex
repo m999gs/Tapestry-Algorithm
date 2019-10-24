@@ -22,21 +22,44 @@ defmodule Proj3.Tapestry do
         {:noreply, state}
     end
 
+    def handle_cast({:update_child_count}, current_state) do
+        numNodes = Map.get(current_state, :numNodes)
+        new_state = Map.put(current_state, :numNodes, numNodes + 1)
+        {:noreply, new_state}
+    end
+
     def handle_call({:get}, _from, current_state) do
         {:reply, current_state, current_state}
     end
 
     def terminate(_reason, state) do
         IO.inspect state
+        IO.puts "***** Exiting Tapestry GenServer *****"
     end
 
     def get() do
         GenServer.call(@me, {:get})
     end
+ 
+    def makeRoutingTable(tapestry_server_state) do
+        Proj3.Node.fillRoutingTable(tapestry_server_state)
+    end
 
-    def buildNetwork(hash_pid_map)do
-        # Enum.reduce(pid_list, fn(x)->Node.ComputeRouteTable(x,hash_pid_map))
-        IO.puts "in tapestry's buildnetwork"
-        Proj3.Node.fillRoutingTable(hash_pid_map)
+    def selectSourceAndDestinationNodes(tapestry_server_state) do
+        numRequests = Map.get(tapestry_server_state, :numRequests)
+        sourceDestination = Map.new
+        hashNamesMap = Map.get(tapestry_server_state, :hashNamesOfAllNodes)
+        sourceDestination = Enum.map(hashNamesMap, fn {_key, hashName} ->
+            destinationMap = Enum.reduce(1..numRequests, %{}, fn x, acc2 -> 
+                    {_, dest} = Enum.random(hashNamesMap)
+                    Map.put(acc2, x, dest)
+                end)
+            Map.put(sourceDestination, hashName, destinationMap) 
+        end)
+        sourceDestination
+    end
+
+    def updateChildCount() do
+        GenServer.cast(@me, {:update_child_count})
     end
 end
