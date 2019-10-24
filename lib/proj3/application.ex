@@ -23,8 +23,9 @@ defmodule Proj3.Application do
 
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
 
-    newRoutingTable = Proj3.Route.getRoutingTable("B0BF")
-    IO.inspect Proj3.Route.route("B0BF","18BA",newRoutingTable,0)
+    newRoutingTable = Proj3.Route.getRoutingTable("B0A6")
+
+    IO.inspect Proj3.Route.route("B0A6","B0A6", newRoutingTable, 0)
 
     #ADD New Node to Network (Network Join)
     newNodehashName = Helper.hashFunction("node#{numNodes}")
@@ -33,15 +34,15 @@ defmodule Proj3.Application do
     newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
     Supervisor.start_child(application_pid, newChildSpec)
     Proj3.Tapestry.updateChildCount()
-    
 
     sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
     
     
 
     Enum.each(sourceDestinationMap, fn currentNode -> 
-      _sourceNode = Map.keys(currentNode)
-      _destinationNodes = Map.values(currentNode)
+      sourceNode = Map.keys(currentNode)
+
+      destinationNodes = Map.values(currentNode)
 
       #make a routing request here 
     end)

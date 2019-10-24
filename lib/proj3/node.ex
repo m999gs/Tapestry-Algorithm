@@ -77,7 +77,7 @@ defmodule Proj3.Node do
     def newNodeRoutingTable(routingTable, hashID, hashNames) do
         max = 0
         string = ""
-        {maxValue,nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
+        {_maxValue , nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
             level = longest_prefix(hashID,x,0,0)
             acc=
             cond do
