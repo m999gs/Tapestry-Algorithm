@@ -28,9 +28,9 @@ defmodule Proj3.Node do
 
     def handle_call({:updateRoutingTable, currentNodeId, allHashNames}, _from, current_state) do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
-        if String.equivalent?(currentNodeId,"C03E") do
-            IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
-        end
+        # if String.equivalent?(currentNodeId,"C03E") do
+        #     IO.inspect newNodeRoutingTable(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
+        # end
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
     end
@@ -89,7 +89,6 @@ defmodule Proj3.Node do
             end
             acc
         end)
-        IO.inspect maxValue
 
         # t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
         #     level= longest_prefix(hashID,x,0,0)
