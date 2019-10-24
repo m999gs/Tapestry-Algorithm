@@ -23,7 +23,6 @@ defmodule Proj3.Application do
 
     # GenServer.call()
     #Do something here: take one hashId at once, find its place in routing table [logic pending]
-
     Proj3.Tapestry.buildNetwork(Proj3.Tapestry.get())
     {:ok, application_pid}
   end
