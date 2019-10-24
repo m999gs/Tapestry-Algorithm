@@ -49,7 +49,6 @@ defmodule Proj3.Node do
     end
 
     def fillRoutingTable(tapestry_state) do
-        IO.puts "In node's routing method"
         {:ok, pid_map} = Map.fetch(tapestry_state, :hashedMapPID)
         {:ok, allHashNames} = Map.fetch(tapestry_state, :hashNamesOfAllNodes)
 

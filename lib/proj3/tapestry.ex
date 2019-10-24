@@ -22,6 +22,12 @@ defmodule Proj3.Tapestry do
         {:noreply, state}
     end
 
+    def handle_cast({:update_child_count}, current_state) do
+        numNodes = Map.get(current_state, :numNodes)
+        new_state = Map.put(current_state, :numNodes, numNodes + 1)
+        {:noreply, new_state}
+    end
+
     def handle_call({:get}, _from, current_state) do
         {:reply, current_state, current_state}
     end
@@ -36,7 +42,6 @@ defmodule Proj3.Tapestry do
     end
  
     def makeRoutingTable(tapestry_server_state) do
-        IO.puts "in tapestry's buildnetwork"
         Proj3.Node.fillRoutingTable(tapestry_server_state)
     end
 
@@ -52,5 +57,9 @@ defmodule Proj3.Tapestry do
             Map.put(sourceDestination, hashName, destinationMap) 
         end)
         sourceDestination
+    end
+
+    def updateChildCount() do
+        GenServer.cast(@me, {:update_child_count})
     end
 end

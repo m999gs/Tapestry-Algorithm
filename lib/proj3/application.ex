@@ -6,9 +6,9 @@ defmodule Proj3.Application do
   def start(_type, _args) do
     numNodes = String.to_integer(Enum.at(System.argv(),0), 10)
     numRequests = String.to_integer(Enum.at(System.argv(),1), 10)
-    tapestry = Supervisor.child_spec({Proj3.Tapestry, %{numNodes: numNodes, numRequests: numRequests, hashNamesOfAllNodes: %{}, hashedMapPID: %{}}}, restart: :transient)
+    tapestry = Supervisor.child_spec({Proj3.Tapestry, %{numNodes: numNodes - 1, numRequests: numRequests, hashNamesOfAllNodes: %{}, hashedMapPID: %{}}}, restart: :transient)
     registry = {Registry, keys: :unique, name: Proj3.Registry, partitions: System.schedulers_online()}
-    children = Enum.reduce(1..numNodes, [], fn x, acc -> 
+    children = Enum.reduce(1..(numNodes - 1), [], fn x, acc -> 
       currentNode = "node#{x}"
       hashName = Helper.hashFunction(currentNode)
       # Trim hashname from 40 bits to 8 bits (remove this once final)
@@ -22,7 +22,27 @@ defmodule Proj3.Application do
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
-    Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
+    
+
+    #ADD New Node to Network (Network Join)
+    newNodehashName = Helper.hashFunction("node#{numNodes}")
+    newNodehashName = String.slice(newNodehashName, 0..3)
+    {newNodeHashInteger, _} = Integer.parse(newNodehashName, 16) 
+    newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
+    Supervisor.start_child(application_pid, newChildSpec)
+    Proj3.Tapestry.updateChildCount()
+    
+    
+    sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
+    
+    
+
+    Enum.each(sourceDestinationMap, fn currentNode -> 
+      _sourceNode = Map.keys(currentNode)
+      _destinationNodes = Map.values(currentNode)
+
+      #make a routing request here 
+    end)
 
     {:ok, application_pid}
   end
