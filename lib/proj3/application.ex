@@ -28,7 +28,7 @@ defmodule Proj3.Application do
 
     #ADD New Node to Network (Network Join)
     newNodehashName = Helper.hashFunction("node#{numNodes}")
-    newNodehashName = String.slice(newNodehashName, 0..3)
+    IO.inspect newNodehashName = String.slice(newNodehashName, 0..3)
     {newNodeHashInteger, _} = Integer.parse(newNodehashName, 16) 
     newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
     Supervisor.start_child(application_pid, newChildSpec)
