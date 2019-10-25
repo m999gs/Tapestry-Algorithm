@@ -70,10 +70,12 @@ defmodule Proj3.Node do
     def get_current_state_of_node(pid) do
         GenServer.call(pid, {:get_state})
     end
-
+    # computing the newly joining node after creating the network.
     def newNodeRoutingTable(routingTable, hashID, hashNames) do
-        max = 0
-        string = ""
+        max = 0 #variable for the longest matching prefix
+        string = "" # variable for the nearest hashID
+
+        #Finding the nearest node of the new node in the existing network and the longest matching prefix
         {maxValue,nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
             level = longest_prefix(hashID,x,0,0)
             acc=
@@ -86,12 +88,16 @@ defmodule Proj3.Node do
             end
             acc
         end)
-        IO.inspect nearestHashId
+
+        #fetching the routing table of the nearest node
         oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
+
+        #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
         routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
                 Map.put(acc,x,Map.get(oldRoutingtable,x))
         end)
 
+        #Computing the rest of the lower nodes of new node
         t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
             level= longest_prefix(hashID,x,0,0)
             acc = 
@@ -109,9 +115,11 @@ defmodule Proj3.Node do
             end
             acc
          end)
+        #returning the final routing table 
         t
     end
 
+    #computing the routing tables at the time of initialization.
     def routingTableFunction(routingTable, hashID, hashNames) do
            t = Enum.reduce(hashNames, routingTable, fn {_,x}, acc ->
            level = longest_prefix(hashID, x, 0, 0)

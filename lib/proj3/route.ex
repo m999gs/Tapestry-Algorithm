@@ -6,7 +6,7 @@ defmodule Proj3.Route do
         newSourceID=to_string(routingTable[level][col])
         #fetching the routing table
         newRoutingTable = getRoutingTable(newSourceID)
-
+        IO.inspect newSourceID
         t=
         cond do
             String.equivalent?(newSourceID,destinationID) ->
