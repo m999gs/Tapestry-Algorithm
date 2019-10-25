@@ -28,12 +28,19 @@ defmodule Proj3.Tapestry do
         {:noreply, new_state}
     end
 
+    def handle_cast({:update_max_hop, currentHop}, state) do
+        {_, currentMax} = Map.fetch(state, :maxHops)
+        newMax = max(currentMax, currentHop)
+        state = Map.put(state, :maxHops, newMax)
+        {:noreply, state}
+    end
+
     def handle_call({:get}, _from, current_state) do
         {:reply, current_state, current_state}
     end
 
     def terminate(_reason, state) do
-        IO.inspect state
+        # IO.inspect state
         IO.puts "***** Exiting Tapestry GenServer *****"
     end
 
@@ -61,5 +68,9 @@ defmodule Proj3.Tapestry do
 
     def updateChildCount() do
         GenServer.cast(@me, {:update_child_count})
+    end
+
+    def computeMaxHop(currentHop) do
+        GenServer.cast(@me, {:update_max_hop, currentHop})
     end
 end

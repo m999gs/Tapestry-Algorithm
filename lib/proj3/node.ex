@@ -6,7 +6,7 @@ defmodule Proj3.Node do
         # GenServer.cast(pid, :start)
         [nodeInitializationData | _tail] = init_state
         # Initialize this genserver with name, empty routing table and all
-        routingTable = Enum.reduce(0..3, %{}, fn currentLevel, acc1 -> 
+        routingTable = Enum.reduce(0..7, %{}, fn currentLevel, acc1 -> 
             slots = Enum.reduce(0..15, %{}, fn x, acc2 -> 
                 currentSlot = Helper.currentSlot(x)
                 Map.put(acc2, currentSlot, "")
@@ -72,6 +72,8 @@ defmodule Proj3.Node do
     end
 
     def newNodeRoutingTable(routingTable, hashID, hashNames) do
+        hashNames = Map.delete(hashNames, map_size(hashNames))
+        IO.inspect hashNames
         max = 0
         string = ""
         {maxValue , nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
@@ -86,30 +88,30 @@ defmodule Proj3.Node do
             end
             acc
         end)
-        
+        IO.inspect nearestHashId
         oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
-        routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
-                Map.put(acc,x,Map.get(oldRoutingtable,x))
-        end)
+        # routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
+        #         Map.put(acc,x,Map.get(oldRoutingtable,x))
+        # end)
 
-        t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
-            level= longest_prefix(hashID,x,0,0)
-            acc = 
-            cond do
-                level > maxValue ->
-                    acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
-                    temp= String.at(x,y)
-                    {_, rlevel} = Map.fetch(acc, y)
-                    x = Map.put(rlevel, temp, x)
-                    Map.put(acc2,y,x)
-                    end)
-                    acc
-                true ->
-                    acc
-            end
-            acc
-         end)
-        t
+        # t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
+        #     level= longest_prefix(hashID,x,0,0)
+        #     acc = 
+        #     cond do
+        #         level > maxValue ->
+        #             acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
+        #             temp= String.at(x,y)
+        #             {_, rlevel} = Map.fetch(acc, y)
+        #             x = Map.put(rlevel, temp, x)
+        #             Map.put(acc2,y,x)
+        #             end)
+        #             acc
+        #         true ->
+        #             acc
+        #     end
+        #     acc
+        #  end)
+        # t
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
