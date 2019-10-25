@@ -40,7 +40,7 @@ defmodule Proj3.Tapestry do
     end
 
     def terminate(_reason, state) do
-        # IO.inspect state
+        IO.inspect state
         IO.puts "***** Exiting Tapestry GenServer *****"
     end
 
@@ -56,6 +56,7 @@ defmodule Proj3.Tapestry do
         numRequests = Map.get(tapestry_server_state, :numRequests)
         sourceDestination = Map.new
         hashNamesMap = Map.get(tapestry_server_state, :hashNamesOfAllNodes)
+        hashNamesMap = Map.delete(hashNamesMap, map_size(hashNamesMap))
         sourceDestination = Enum.map(hashNamesMap, fn {_key, hashName} ->
             destinationMap = Enum.reduce(1..numRequests, %{}, fn x, acc2 -> 
                     {_, dest} = Enum.random(hashNamesMap)

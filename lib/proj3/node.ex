@@ -32,6 +32,11 @@ defmodule Proj3.Node do
         {:reply, current_state, current_state}
     end
 
+    def handle_call({:updateNewNodeRoutingTable, newNodeRoutingTable}, _from, current_state) do
+        new_state = Map.put(current_state, :routingTable, newNodeRoutingTable)
+        {:reply, new_state, new_state}
+    end
+
     def terminate(reason, _current_state) do
         IO.inspect reason
         IO.puts "***** Exiting Node GenServer *****"
@@ -67,20 +72,24 @@ defmodule Proj3.Node do
         GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, 100000)
     end
 
+    def updateNewNodeTable(pid, newTable) do
+        GenServer.call(pid, {:updateNewNodeRoutingTable, newTable})
+    end
+
     def get_current_state_of_node(pid) do
         GenServer.call(pid, {:get_state})
     end
 
     def newNodeRoutingTable(routingTable, hashID, hashNames) do
-        hashNames = Map.delete(hashNames, map_size(hashNames))
-        IO.inspect hashNames
-        max = 0
-        string = ""
-        {maxValue , nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
+        max = 0 #variable for the longest matching prefix
+        string = "" # variable for the nearest hashID
+
+        #Finding the nearest node of the new node in the existing network and the longest matching prefix
+        {maxValue,nearestHashId} = Enum.reduce(hashNames,{max,string}, fn {_,x} ,acc -> 
             level = longest_prefix(hashID,x,0,0)
             acc=
             cond do
-                max < level ->
+                (max < level) && (!String.equivalent?(to_string(hashID),to_string(x))) ->
                     max = level
                     {max,x}
                 true->
@@ -88,30 +97,41 @@ defmodule Proj3.Node do
             end
             acc
         end)
-        IO.inspect nearestHashId
-        oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
-        # routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
-        #         Map.put(acc,x,Map.get(oldRoutingtable,x))
-        # end)
+        t = 
+        cond do
+            maxValue == 0 ->
+                routingTableFunction(routingTable, hashID, hashNames)
+            true ->
+                #fetching the routing table of the nearest node
+                oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
 
-        # t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
-        #     level= longest_prefix(hashID,x,0,0)
-        #     acc = 
-        #     cond do
-        #         level > maxValue ->
-        #             acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
-        #             temp= String.at(x,y)
-        #             {_, rlevel} = Map.fetch(acc, y)
-        #             x = Map.put(rlevel, temp, x)
-        #             Map.put(acc2,y,x)
-        #             end)
-        #             acc
-        #         true ->
-        #             acc
-        #     end
-        #     acc
-        #  end)
-        # t
+                #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
+                routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
+                        Map.put(acc,x,Map.get(oldRoutingtable,x))
+                end)
+
+                #Computing the rest of the lower nodes of new node
+                ft = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
+                    level= longest_prefix(hashID,x,0,0)
+                    acc = 
+                    cond do
+                        level > maxValue ->
+                            acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
+                            temp= String.at(x,y)
+                            {_, rlevel} = Map.fetch(acc, y)
+                            x = Map.put(rlevel, temp, x)
+                            Map.put(acc2,y,x)
+                            end)
+                            acc
+                        true ->
+                            acc
+                    end
+                    acc
+                end)
+                #returning the final routing table 
+                ft
+        end
+        t
     end
 
     def routingTableFunction(routingTable, hashID, hashNames) do
