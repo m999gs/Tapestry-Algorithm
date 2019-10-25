@@ -6,7 +6,6 @@ defmodule Proj3.Route do
         newSourceID=to_string(routingTable[level][col])
         #fetching the routing table
         newRoutingTable = getRoutingTable(newSourceID)
-
         t=
         cond do
             String.equivalent?(newSourceID,destinationID) ->
@@ -17,11 +16,11 @@ defmodule Proj3.Route do
         t
     end
 
-    def getRoutingTable(nodeID) do
-        pid_map = Map.get(Proj3.Tapestry.get(), :hashedMapPID)
-        pid=Map.get(pid_map, nodeID)
+    def getRoutingTable(newSourceID) do
+        pid_map = Map.get(Proj3.Tapestry.get(),:hashedMapPID)
+        pid=Map.get(pid_map, newSourceID)
         node_state = Proj3.Node.get_current_state_of_node(pid)
-        routingTable = Map.get(node_state, :routingTable)
-        routingTable
+        newRoutingTable = Map.get(node_state,:routingTable)
+        newRoutingTable
     end
 end

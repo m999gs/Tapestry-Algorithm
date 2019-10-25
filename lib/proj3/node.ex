@@ -69,7 +69,7 @@ defmodule Proj3.Node do
 
     #Gets called by the function above
     def updateRoutingTable(pid, currentNodeId, allHashNames) do
-        GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, 100000)
+        GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, :infinity)
     end
 
     def updateNewNodeTable(pid, newTable) do
@@ -79,7 +79,7 @@ defmodule Proj3.Node do
     def get_current_state_of_node(pid) do
         GenServer.call(pid, {:get_state})
     end
-
+    # computing the newly joining node after creating the network.
     def newNodeRoutingTable(routingTable, hashID, hashNames) do
         max = 0 #variable for the longest matching prefix
         string = "" # variable for the nearest hashID
@@ -105,6 +105,24 @@ defmodule Proj3.Node do
                 #fetching the routing table of the nearest node
                 oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
 
+                #Fetching the HashId's if copied nodes to update their table
+                hashIDsToUpdate = Enum.reduce(0..maxValue, %{}, fn x,acc ->
+                    newtab = Enum.reduce(0..15,%{}, fn y,acc2 -> 
+                    col=Helper.currentSlot(y)   
+                        if !String.equivalent?(to_string(oldRoutingtable[x][col]),"") do
+                                Map.put(acc2,oldRoutingtable[x][col],x)
+                        else
+                            acc2
+                        end
+                    end)
+                Map.merge(acc,newtab)
+                end)
+                #updating the routing table of each copied hashID
+                Enum.each(hashIDsToUpdate, fn {x,_}-> 
+                    temproutingTable = Proj3.Route.getRoutingTable(x)
+                    routingTableFunction(temproutingTable, x, hashNames)
+                end)
+                
                 #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
                 routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
                         Map.put(acc,x,Map.get(oldRoutingtable,x))
@@ -134,6 +152,7 @@ defmodule Proj3.Node do
         t
     end
 
+    #computing the routing tables at the time of initialization.
     def routingTableFunction(routingTable, hashID, hashNames) do
            t = Enum.reduce(hashNames, routingTable, fn {_,x}, acc ->
            level = longest_prefix(hashID, x, 0, 0)
