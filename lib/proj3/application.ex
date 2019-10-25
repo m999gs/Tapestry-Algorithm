@@ -6,8 +6,8 @@ defmodule Proj3.Application do
   def start(_type, _args) do
     numNodes = String.to_integer(Enum.at(System.argv(),0), 10)
     numRequests = String.to_integer(Enum.at(System.argv(),1), 10)
+    IO.puts "Computing the max number of hops..."
     tapestry = Supervisor.child_spec({Proj3.Tapestry, %{numNodes: numNodes - 1, numRequests: numRequests, maxHops: 0, hashNamesOfAllNodes: %{}, hashedMapPID: %{}}}, restart: :transient)
-    registry = {Registry, keys: :unique, name: Proj3.Registry, partitions: System.schedulers_online()}
     children = Enum.reduce(1..(numNodes - 1), [], fn x, acc -> 
       currentNode = "node#{x}"
       hashName = Helper.hashFunction(currentNode)
@@ -17,7 +17,7 @@ defmodule Proj3.Application do
       [Supervisor.child_spec({Proj3.Node, [%{hashID: hashName, name: currentNode, hashInteger: hashInteger}, x]}, id: {Proj3.Node, x}, restart: :temporary) | acc]
       end)
     
-    children_all = [tapestry | [registry | children]]
+    children_all = [tapestry | children]
     opts = [strategy: :one_for_one, name: Proj3.Supervisor]
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 

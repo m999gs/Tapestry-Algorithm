@@ -29,3 +29,8 @@
 ## **Largest Network Tested**
 
 The largest network we tested was 5000 nodes. It does work after that but it runs very slowly.
+
+
+7000 5 -> Hops 5
+8000 5 -> Hops 5
+9000 5 -> Hops 5

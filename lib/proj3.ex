@@ -5,11 +5,7 @@ defmodule Proj3 do
     end
 
     def startProject(args) do
-        # IO.puts "Project started"
         [numNodes, numRequests] = args
-        # Proj3.Supervisor.start_link(numNodes)
         Application.start(:normal, {numNodes, numRequests})
-        # TODO: Put logic to define supervisors and genservers 
     end
-
 end
