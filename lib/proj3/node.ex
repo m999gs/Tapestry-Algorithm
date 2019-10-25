@@ -3,7 +3,6 @@ defmodule Proj3.Node do
 
     def init(init_state) do
         pid = self();
-        # GenServer.cast(pid, :start)
         [nodeInitializationData | _tail] = init_state
         # Initialize this genserver with name, empty routing table and all
         routingTable = Enum.reduce(0..7, %{}, fn currentLevel, acc1 -> 
@@ -55,16 +54,10 @@ defmodule Proj3.Node do
     def fillRoutingTable(tapestry_state) do
         {:ok, pid_map} = Map.fetch(tapestry_state, :hashedMapPID)
         {:ok, allHashNames} = Map.fetch(tapestry_state, :hashNamesOfAllNodes)
-        
-        #Update every node's routing table
-        # Enum.map(pid_map, fn {hashName, pid} -> updateRoutingTable(pid, hashName, allHashNames) end)
-        
         Enum.map(pid_map, fn {hashName, pid} -> 
             Task.async(fn -> updateRoutingTable(pid, hashName, allHashNames) end) 
         end)
         |> Enum.map(fn (task) -> Task.await(task, :infinity) end)
-
-        #Run a function to start sending requests here
     end
 
     #Gets called by the function above
@@ -117,10 +110,14 @@ defmodule Proj3.Node do
                     end)
                 Map.merge(acc,newtab)
                 end)
-                #updating the routing table of each copied hashID
+
+                #updating the routing table of each copied node
+                pid_map = Map.get(Proj3.Tapestry.get(), :hashedMapPID)
                 Enum.each(hashIDsToUpdate, fn {x,_}-> 
+                    pid = Map.get(pid_map, x)
                     temproutingTable = Proj3.Route.getRoutingTable(x)
-                    routingTableFunction(temproutingTable, x, hashNames)
+                    newRoutingTable = routingTableFunction(temproutingTable, x, hashNames)
+                    Proj3.Node.updateNewNodeTable(pid, newRoutingTable)
                 end)
                 
                 #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
