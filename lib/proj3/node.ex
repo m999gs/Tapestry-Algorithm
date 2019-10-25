@@ -6,7 +6,7 @@ defmodule Proj3.Node do
         # GenServer.cast(pid, :start)
         [nodeInitializationData | _tail] = init_state
         # Initialize this genserver with name, empty routing table and all
-        routingTable = Enum.reduce(0..3, %{}, fn currentLevel, acc1 -> 
+        routingTable = Enum.reduce(0..7, %{}, fn currentLevel, acc1 -> 
             slots = Enum.reduce(0..15, %{}, fn x, acc2 -> 
                 currentSlot = Helper.currentSlot(x)
                 Map.put(acc2, currentSlot, "")
@@ -30,6 +30,11 @@ defmodule Proj3.Node do
         newRoutingTable = routingTableFunction(Map.get(current_state, :routingTable), currentNodeId, allHashNames)
         current_state = Map.put(current_state, :routingTable, newRoutingTable)
         {:reply, current_state, current_state}
+    end
+
+    def handle_call({:updateNewNodeRoutingTable, newNodeRoutingTable}, _from, current_state) do
+        new_state = Map.put(current_state, :routingTable, newNodeRoutingTable)
+        {:reply, new_state, new_state}
     end
 
     def terminate(reason, _current_state) do
@@ -67,6 +72,10 @@ defmodule Proj3.Node do
         GenServer.call(pid, {:updateRoutingTable, currentNodeId, allHashNames}, 100000)
     end
 
+    def updateNewNodeTable(pid, newTable) do
+        GenServer.call(pid, {:updateNewNodeRoutingTable, newTable})
+    end
+
     def get_current_state_of_node(pid) do
         GenServer.call(pid, {:get_state})
     end
@@ -80,7 +89,7 @@ defmodule Proj3.Node do
             level = longest_prefix(hashID,x,0,0)
             acc=
             cond do
-                max < level ->
+                (max < level) && (!String.equivalent?(to_string(hashID),to_string(x))) ->
                     max = level
                     {max,x}
                 true->
@@ -88,34 +97,40 @@ defmodule Proj3.Node do
             end
             acc
         end)
+        t = 
+        cond do
+            maxValue == 0 ->
+                routingTableFunction(routingTable, hashID, hashNames)
+            true ->
+                #fetching the routing table of the nearest node
+                oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
 
-        #fetching the routing table of the nearest node
-        oldRoutingtable = Proj3.Route.getRoutingTable(nearestHashId)
+                #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
+                routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
+                        Map.put(acc,x,Map.get(oldRoutingtable,x))
+                end)
 
-        #copying the 0 to maxValue levels of the nearest node in the newly joining node routing table
-        routingTable = Enum.reduce(0..maxValue,routingTable, fn x, acc -> 
-                Map.put(acc,x,Map.get(oldRoutingtable,x))
-        end)
-
-        #Computing the rest of the lower nodes of new node
-        t = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
-            level= longest_prefix(hashID,x,0,0)
-            acc = 
-            cond do
-                level > maxValue ->
-                    acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
-                    temp= String.at(x,y)
-                    {_, rlevel} = Map.fetch(acc, y)
-                    x = Map.put(rlevel, temp, x)
-                    Map.put(acc2,y,x)
-                    end)
+                #Computing the rest of the lower nodes of new node
+                ft = Enum.reduce(hashNames, routingTable, fn {_,x},acc ->
+                    level= longest_prefix(hashID,x,0,0)
+                    acc = 
+                    cond do
+                        level > maxValue ->
+                            acc = Enum.reduce((maxValue+1)..level, acc, fn y, acc2->
+                            temp= String.at(x,y)
+                            {_, rlevel} = Map.fetch(acc, y)
+                            x = Map.put(rlevel, temp, x)
+                            Map.put(acc2,y,x)
+                            end)
+                            acc
+                        true ->
+                            acc
+                    end
                     acc
-                true ->
-                    acc
-            end
-            acc
-         end)
-        #returning the final routing table 
+                end)
+                #returning the final routing table 
+                ft
+        end
         t
     end
 

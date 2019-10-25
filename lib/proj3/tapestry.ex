@@ -28,6 +28,13 @@ defmodule Proj3.Tapestry do
         {:noreply, new_state}
     end
 
+    def handle_cast({:update_max_hop, currentHop}, state) do
+        {_, currentMax} = Map.fetch(state, :maxHops)
+        newMax = max(currentMax, currentHop)
+        state = Map.put(state, :maxHops, newMax)
+        {:noreply, state}
+    end
+
     def handle_call({:get}, _from, current_state) do
         {:reply, current_state, current_state}
     end
@@ -49,6 +56,7 @@ defmodule Proj3.Tapestry do
         numRequests = Map.get(tapestry_server_state, :numRequests)
         sourceDestination = Map.new
         hashNamesMap = Map.get(tapestry_server_state, :hashNamesOfAllNodes)
+        hashNamesMap = Map.delete(hashNamesMap, map_size(hashNamesMap))
         sourceDestination = Enum.map(hashNamesMap, fn {_key, hashName} ->
             destinationMap = Enum.reduce(1..numRequests, %{}, fn x, acc2 -> 
                     {_, dest} = Enum.random(hashNamesMap)
@@ -61,5 +69,9 @@ defmodule Proj3.Tapestry do
 
     def updateChildCount() do
         GenServer.cast(@me, {:update_child_count})
+    end
+
+    def computeMaxHop(currentHop) do
+        GenServer.cast(@me, {:update_max_hop, currentHop})
     end
 end
