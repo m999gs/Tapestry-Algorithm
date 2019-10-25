@@ -21,11 +21,8 @@ defmodule Proj3.Application do
     opts = [strategy: :one_for_one, name: Proj3.Supervisor]
     {:ok, application_pid} = Supervisor.start_link(children_all, opts)
 
+  #  Make routing table of all nodes
     Proj3.Tapestry.makeRoutingTable(Proj3.Tapestry.get())
-
-    newRoutingTable = Proj3.Route.getRoutingTable("B0A6")
-
-    IO.inspect Proj3.Route.route("B0A6","B0A6", newRoutingTable, 0)
 
     #ADD New Node to Network (Network Join)
     newNodehashName = Helper.hashFunction("node#{numNodes}")
@@ -34,17 +31,24 @@ defmodule Proj3.Application do
     newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
     Supervisor.start_child(application_pid, newChildSpec)
     Proj3.Tapestry.updateChildCount()
+    IO.inspect Proj3.Node.newNodeRoutingTable(Proj3.Route.getRoutingTable(newNodehashName), newNodehashName, Map.get(Proj3.Tapestry.get(), :hashNamesOfAllNodes))
 
     sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
-    
-    
+    IO.inspect Proj3.Tapestry.get
+    IO.inspect newTable = Proj3.Route.getRoutingTable("F937")
+    IO.inspect Proj3.Route.route("F937", "0B37", newTable, 0)
 
     Enum.each(sourceDestinationMap, fn currentNode -> 
       sourceNode = Map.keys(currentNode)
-
+      sourceNode = List.first(sourceNode)
       destinationNodes = Map.values(currentNode)
-
-      #make a routing request here 
+      destinationNodes = List.first(destinationNodes)
+      Enum.each(destinationNodes, fn {key, destinationNode} -> 
+        #make a routing request here 
+        
+        sourceRoutingTable = Proj3.Route.getRoutingTable(sourceNode)
+        # IO.inspect hops = Proj3.Route.route(sourceNode, destinationNode, sourceRoutingTable, 0)
+      end)
     end)
 
     {:ok, application_pid}

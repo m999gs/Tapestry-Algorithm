@@ -21,7 +21,7 @@ defmodule Proj3.Route do
         pid_map = Map.get(Proj3.Tapestry.get(), :hashedMapPID)
         pid=Map.get(pid_map, nodeID)
         node_state = Proj3.Node.get_current_state_of_node(pid)
-        routingTable = Map.get(node_state,:routingTable)
+        routingTable = Map.get(node_state, :routingTable)
         routingTable
     end
 end
