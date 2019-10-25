@@ -33,7 +33,7 @@ defmodule Proj3.Application do
     newChildSpec = Supervisor.child_spec({Proj3.Node, [%{hashID: newNodehashName, name: "node#{numNodes}", hashInteger: newNodeHashInteger}, numNodes]}, id: {Proj3.Node, numNodes}, restart: :temporary)
     Supervisor.start_child(application_pid, newChildSpec)
     Proj3.Tapestry.updateChildCount()
-    Proj3.Node.newNodeRoutingTable(Proj3.Route.getRoutingTable(newNodehashName),newNodehashName,Map.get(Proj3.Tapestry.get(),:hashNamesOfAllNodes))
+    IO.inspect Proj3.Node.newNodeRoutingTable(Proj3.Route.getRoutingTable(newNodehashName),newNodehashName,Map.get(Proj3.Tapestry.get(),:hashNamesOfAllNodes))
 
     sourceDestinationMap = Proj3.Tapestry.selectSourceAndDestinationNodes(Proj3.Tapestry.get())
     
