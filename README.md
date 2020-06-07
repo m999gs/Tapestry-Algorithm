@@ -1,8 +1,8 @@
 # Project 3 -> 
 
 ## Team Members:
- Maharshi Rawal (UFID: 9990-8457) <br />
- Mohit Garg (UFID: 9013-4089)
+ Maharshi Rawal <br />
+ Mohit Garg
 
 
 ## **Installation and Run** 
