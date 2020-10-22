@@ -2,7 +2,7 @@
 
 ## Team Members:
  Maharshi Rawal <br />
- Mohit Garg 
+ Mohit Garg
 
 
 ## **Installation and Run** 
@@ -24,6 +24,7 @@
 
 ## **Largest Network Tested**
 
+<<<<<<< HEAD
 The largest network we tested was 9000 nodes with maximum 5 hops of nodes traversed in a 8-level routing table
 
 | Nodes | Requests | Max Hops |
@@ -39,3 +40,11 @@ The largest network we tested was 9000 nodes with maximum 5 hops of nodes traver
 | 7000 | 5 | 5 |
 | 8000 | 5 | 5 |
 | 9000 | 5 | 5 |
+=======
+The largest network we tested was 5000 nodes. It does work after that but it runs very slowly.
+
+
+7000 5 -> Hops 5
+8000 5 -> Hops 5
+9000 5 -> Hops 5
+>>>>>>> cbc75aa7c90aded926bce3263c4fd502885fd416
