@@ -5,13 +5,17 @@ defmodule Proj3.Application do
 
   def start(_type, _args) do
     numNodes = String.to_integer(Enum.at(System.argv(),0), 10)
+    if numNodes <= 1 do
+      IO.puts "Please enter the Number of nodes greater than 1"
+      System.halt(0)
+    end
+
     numRequests = String.to_integer(Enum.at(System.argv(),1), 10)
     IO.puts "Computing the max number of hops..."
     tapestry = Supervisor.child_spec({Proj3.Tapestry, %{numNodes: numNodes - 1, numRequests: numRequests, maxHops: 0, hashNamesOfAllNodes: %{}, hashedMapPID: %{}}}, restart: :transient)
     children = Enum.reduce(1..(numNodes - 1), [], fn x, acc -> 
       currentNode = "node#{x}"
       hashName = Helper.hashFunction(currentNode)
-      # Trim hashname from 40 bits to 8 bits (remove this once final)
       hashName = String.slice(hashName, 0..7)
       {hashInteger, _} = Integer.parse(hashName, 16)
       [Supervisor.child_spec({Proj3.Node, [%{hashID: hashName, name: currentNode, hashInteger: hashInteger}, x]}, id: {Proj3.Node, x}, restart: :temporary) | acc]
@@ -54,7 +58,7 @@ defmodule Proj3.Application do
     end)
 
     {_, maxHops} = Map.fetch(Proj3.Tapestry.get(), :maxHops)
-    IO.puts "The max number of hops in the network are #{maxHops}"
+    IO.puts "The max number of hops in the network is #{maxHops}"
     {:ok, application_pid}
   end
 
